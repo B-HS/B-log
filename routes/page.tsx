@@ -9,12 +9,12 @@ export const createPageRouter = () => {
     const router = new Hono<{ Bindings: CloudflareBindings; Variables: CloudflareVariables }>()
 
     Object.entries(Pages).forEach(([key, Component]) => {
-        const pageKey = ROOT_PAGE === key.toLowerCase() ? '' : key.toLowerCase()
-        router.get(`/${pageKey}`, async (c) => {
+        const path = ROOT_PAGE === key.toLowerCase() ? '' : key.toLowerCase()
+        router.get(`/${path}`, async (c) => {
             c.header('Content-Type', 'text/html')
             return c.body(
                 await renderToReadableStream(
-                    <Layout page={pageKey}>
+                    <Layout page={key.toLowerCase()}>
                         <Component />
                     </Layout>,
                 ),
