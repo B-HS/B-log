@@ -4,6 +4,7 @@
 
 ## TODO
 - [x] 로그인
+- [ ] shadcn/ui 세팅
 - [x] user/message/image router + service
 - [x] SSR with file router (page -> route자동등록)
 - [ ] 헤더
