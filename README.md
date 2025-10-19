@@ -3,8 +3,8 @@
 - 가장 먼저 사이즈가 제일 큰 misskey instance를 그냥 조그만한 social media network 만들어서 대체해보자
 
 ## TODO
-- [x] 로그인
-- [ ] shadcn/ui 세팅
+- [x] better-auth + 로그인 구현
+- [x] shadcn/ui 세팅
 - [x] user/message/image router + service
 - [x] SSR with file router (page -> route자동등록)
 - [ ] 헤더
