@@ -1,0 +1,27 @@
+{
+    "version": "7",
+    "dialect": "sqlite",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "6",
+            "when": 1760864897808,
+            "tag": "0000_thankful_mordo",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "6",
+            "when": 1760877787059,
+            "tag": "0001_marvelous_sentry",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "6",
+            "when": 1760879156929,
+            "tag": "0002_wandering_molly_hayes",
+            "breakpoints": true
+        }
+    ]
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `message` ADD `deleted_at` integer;

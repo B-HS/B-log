@@ -1,0 +1,23 @@
+name = "b-log"
+main = "server.ts"
+compatibility_date = "2025-10-19"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "dist/client"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "b-log"
+preview_bucket_name = "b-log"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "b-log"
+database_id = "b84760c3-3545-4d44-a1d9-1a13a5bf06d5"
+preview_database_id = "b84760c3-3545-4d44-a1d9-1a13a5bf06d5"
+migrations_dir = "drizzle"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
