@@ -5,9 +5,10 @@ import { UserForm } from './user-form'
 
 export const Header = () => {
     const { data: session, isPending } = authClient.useSession()
-    const handleSignOut = async () => {
-        await authClient.signOut()
-    }
+    const handleSignIn = async () =>
+        await authClient.signIn.social({
+            provider: 'github',
+        })
     return (
         <header className='flex justify-between items-center border-b border-border'>
             <h1 className='text-md font-bold px-2 py-0.75'>B-Log</h1>
@@ -23,7 +24,7 @@ export const Header = () => {
                         </Button>
                     </UserForm>
                 ) : (
-                    <Button size={'icon'} variant='ghost' onClick={handleSignOut}>
+                    <Button size={'icon'} variant='ghost' onClick={handleSignIn}>
                         <LogIn />
                     </Button>
                 )}
