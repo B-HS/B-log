@@ -1,5 +1,6 @@
 import { hydrateRoot } from 'react-dom/client'
-import { Home } from '@/components/page/home'
+import * as Pages from '@/components/page'
+import { Header } from './header'
 
 declare global {
     interface Window {
@@ -7,12 +8,19 @@ declare global {
     }
 }
 
-const pages: Record<string, React.ComponentType> = {
-    home: Home,
-}
-
 const root = document.getElementById('root')
-if (root && pages[window.__PAGE__]) {
-    const PageComponent = pages[window.__PAGE__]
-    hydrateRoot(root, <PageComponent />)
+
+if (root && window.__PAGE__) {
+    const pageName = window.__PAGE__.charAt(0).toUpperCase() + window.__PAGE__.slice(1)
+    const PageComponent = Pages[pageName as keyof typeof Pages]
+
+    if (PageComponent) {
+        hydrateRoot(
+            root,
+            <>
+                <Header />
+                <PageComponent />
+            </>,
+        )
+    }
 }

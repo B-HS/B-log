@@ -1,4 +1,4 @@
-import { Layout } from '@/components/layout'
+import { Layout } from '@/components/layout/renderer'
 import * as Pages from '@/components/page'
 import { Hono } from 'hono'
 import { renderToReadableStream } from 'react-dom/server'

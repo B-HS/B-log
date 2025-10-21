@@ -1,4 +1,5 @@
-import { Link, ViteClient, Script } from 'vite-ssr-components/react'
+import { Link, Script, ViteClient } from 'vite-ssr-components/react'
+import { Header } from './header'
 
 export const Layout = ({ children, page }: { children: React.ReactNode; page?: string }) => {
     return (
@@ -9,9 +10,11 @@ export const Layout = ({ children, page }: { children: React.ReactNode; page?: s
                 <Script src='/components/layout/client.tsx' />
                 <ViteClient />
             </head>
-            <body>
-                <header>B-Log</header>
-                <div id='root'>{children}</div>
+            <body className='flex justify-center'>
+                <div id='root' className='w-full max-w-screen-sm sm:border-l sm:border-r min-h-dvh'>
+                    <Header />
+                    {children}
+                </div>
             </body>
         </html>
     )
