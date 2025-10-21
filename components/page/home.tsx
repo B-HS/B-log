@@ -63,6 +63,8 @@ export const Home = () => {
 
     const messagesWithUrl = messages.map((msg) => ({
         ...msg,
+        createdAt: new Date(msg.createdAt),
+        updatedAt: new Date(msg.updatedAt),
         images: msg.images.map((img) => ({
             id: img.id,
             url: `/api/r2/${img.bucket}/${img.r2Key}`,
@@ -109,11 +111,7 @@ export const Home = () => {
                 </div>
             )}
 
-            {messages.length === 0 && !loading && (
-                <div className='flex justify-center p-8'>
-                    <div className='text-muted-foreground'>메시지가 없습니다</div>
-                </div>
-            )}
+            {messages.length === 0 && loading === false && <div className='flex justify-center p-8'></div>}
 
             <div ref={observerTarget} className='h-4' />
         </div>
