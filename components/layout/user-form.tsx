@@ -1,17 +1,18 @@
 import { authClient } from '@/auth/client'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
-import { Upload } from 'lucide-react'
+import { Loader2, Upload } from 'lucide-react'
 import { ReactNode, useEffect, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 
 export const UserForm = ({ children }: { children: ReactNode }) => {
+    const [isImageLoading, setIsImageLoading] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [name, setName] = useState<string>()
     const [imageUrl, setImageUrl] = useState<string>()
-    const { data: authSession } = authClient.useSession()
+    const { data: authSession, refetch } = authClient.useSession()
 
     const updateUserProfile = async () => {
         setIsLoading(true)
@@ -25,6 +26,7 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
+            setIsImageLoading(true)
             const formData = new FormData()
             formData.append('file', file)
 
@@ -32,11 +34,12 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
                 method: 'POST',
                 body: formData,
             })
-
             const data = (await response.json()) as { id: string }
             if (data?.id) {
-                setImageUrl(`/images/${data.id}/thumbnail.webp`)
+                setImageUrl(`https://r2b.gumyo.net/images/${data.id}/thumbnail.webp`)
+                refetch()
             }
+            setIsImageLoading(false)
         }
     }
 
@@ -64,19 +67,24 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
                     <DrawerTitle>User Information</DrawerTitle>
                     <DrawerDescription className='flex flex-col gap-3'>
                         <div className='flex flex-col items-center gap-4'>
-                            <Avatar className='h-24 w-24'>
-                                <AvatarImage src={imageUrl || undefined} alt={name} />
-                                <AvatarFallback className='text-2xl'>{getInitials(name || '')}</AvatarFallback>
-                            </Avatar>
+                            {isImageLoading ? (
+                                <div className='flex items-center justify-center'>
+                                    <Loader2 className='size-28 animate-spin' />
+                                </div>
+                            ) : (
+                                <Avatar className='size-28'>
+                                    <AvatarImage src={imageUrl || undefined} alt={name} />
+                                    <AvatarFallback className='text-2xl'>{getInitials(name || '')}</AvatarFallback>
+                                </Avatar>
+                            )}
                             <div className='flex flex-col items-center gap-2'>
                                 <Label htmlFor='image-upload' className='cursor-pointer'>
                                     <div className='flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground'>
-                                        <Upload className='h-4 w-4' />
+                                        <Upload className='size-3.5' />
                                         <span>이미지 업로드</span>
                                     </div>
                                 </Label>
                                 <Input id='image-upload' type='file' accept='image/*' className='hidden' onChange={handleImageChange} />
-                                <p className='text-xs text-muted-foreground'>JPG, PNG 또는 GIF (최대 2MB)</p>
                             </div>
                         </div>
 
