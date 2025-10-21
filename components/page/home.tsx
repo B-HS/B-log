@@ -67,7 +67,7 @@ export const Home = () => {
         updatedAt: new Date(msg.updatedAt),
         images: msg.images.map((img) => ({
             id: img.id,
-            url: `/api/r2/${img.bucket}/${img.r2Key}`,
+            url: `https://r2b.gumyo.net/images/${img.id}/thumbnail.webp`,
             alt: null,
         })),
     }))
