@@ -20,6 +20,7 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
             await authClient.updateUser({ name, image: imageUrl })
         } finally {
             setIsLoading(false)
+            refetch()
         }
     }
 
@@ -37,7 +38,6 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
             const data = (await response.json()) as { id: string }
             if (data?.id) {
                 setImageUrl(`https://r2b.gumyo.net/images/${data.id}/thumbnail.webp`)
-                refetch()
             }
             setIsImageLoading(false)
         }
