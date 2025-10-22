@@ -1,26 +1,14 @@
+import { authMiddleware } from '@/auth/middleware'
+import { handleError } from '@/utils'
+import { DEFAULT_FILE_PREFIX } from '@/constants'
 import { Hono } from 'hono'
 import { list, upload, removeById } from '../repository'
-import { createAuth } from '../auth'
 import { ImageService } from '../services'
 
 export const createR2Router = () => {
     const router = new Hono<{ Bindings: CloudflareBindings; Variables: CloudflareVariables }>()
 
-    router.use('*', async (c, next) => {
-        const url = new URL(c.req.url)
-        const baseURL = `${url.protocol}//${url.host}`
-        const auth = createAuth(c.env, baseURL)
-        const session = await auth.api.getSession({
-            headers: c.req.raw.headers,
-        })
-
-        if (!session) {
-            return c.json({ error: 'Unauthorized' }, 401)
-        }
-
-        c.set('userId', session.user.id)
-        await next()
-    })
+    router.use('*', authMiddleware)
 
     router.get('/files', async (c) => {
         const { prefix, limit, cursor } = c.req.query()
@@ -55,17 +43,11 @@ export const createR2Router = () => {
                     uploaded: true,
                 })
             } catch (error) {
-                console.error('Image upload error:', error)
-                return c.json(
-                    {
-                        error: error instanceof Error ? error.message : 'Image upload failed',
-                    },
-                    500,
-                )
+                return handleError(c, error, 'Image upload error')
             }
         }
 
-        const key = `${Date.now()}-${file.name}`
+        const key = `${DEFAULT_FILE_PREFIX}-${Date.now()}-${file.name}`
         const arrayBuffer = await file.arrayBuffer()
 
         const result = await upload(c.env.BUCKET, key, arrayBuffer, {

@@ -1,5 +1,6 @@
+import { authMiddleware } from '@/auth/middleware'
+import { handleError, validateRequired } from '@/utils'
 import { Hono } from 'hono'
-import { createAuth } from '../auth'
 import { MessageService } from '../services'
 
 export const createMessageRouter = () => {
@@ -24,48 +25,22 @@ export const createMessageRouter = () => {
         return c.json(result)
     })
 
-    router.post('/', async (c) => {
-        const url = new URL(c.req.url)
-        const baseURL = `${url.protocol}//${url.host}`
-        const auth = createAuth(c.env, baseURL)
-        const session = await auth.api.getSession({
-            headers: c.req.raw.headers,
-        })
-
-        if (!session) {
-            return c.json({ error: 'Unauthorized' }, 401)
-        }
-
-        const userId = session.user.id
+    router.post('/', authMiddleware, async (c) => {
+        const userId = c.get('userId')
         const { body, imageIds } = await c.req.json<{ body: string; imageIds: string[] }>()
 
-        if (!body || body.trim().length === 0) {
-            return c.json({ error: 'Message body is required' }, 400)
-        }
-
         try {
+            const validBody = validateRequired(body, 'Message body')
             const service = MessageService(c.env.DB)
-            const message = await service.createMessage(userId, body, imageIds || [])
+            const message = await service.createMessage(userId, validBody, imageIds || [])
             return c.json(message, 201)
         } catch (error) {
-            console.error('Create message error:', error)
-            return c.json({ error: error instanceof Error ? error.message : 'Failed to create message' }, 500)
+            return handleError(c, error, 'Create message error')
         }
     })
 
-    router.delete('/:id', async (c) => {
-        const url = new URL(c.req.url)
-        const baseURL = `${url.protocol}//${url.host}`
-        const auth = createAuth(c.env, baseURL)
-        const session = await auth.api.getSession({
-            headers: c.req.raw.headers,
-        })
-
-        if (!session) {
-            return c.json({ error: 'Unauthorized' }, 401)
-        }
-
-        const userId = session.user.id
+    router.delete('/:id', authMiddleware, async (c) => {
+        const userId = c.get('userId')
         const messageId = c.req.param('id')
 
         try {
@@ -73,16 +48,7 @@ export const createMessageRouter = () => {
             const result = await service.softDeleteMessage(messageId, userId)
             return c.json(result)
         } catch (error) {
-            console.error('Delete message error:', error)
-            if (error instanceof Error) {
-                if (error.message === 'Message not found') {
-                    return c.json({ error: 'Message not found' }, 404)
-                }
-                if (error.message === 'Unauthorized') {
-                    return c.json({ error: 'Unauthorized' }, 403)
-                }
-            }
-            return c.json({ error: 'Failed to delete message' }, 500)
+            return handleError(c, error, 'Delete message error')
         }
     })
 

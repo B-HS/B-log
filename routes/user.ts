@@ -1,50 +1,39 @@
+import { authMiddleware } from '@/auth/middleware'
+import { validateRequired, handleError } from '@/utils'
 import { Hono } from 'hono'
-import { createAuth } from '../auth'
 import { UserService } from '../services'
 
 export const createUserRouter = () => {
     const router = new Hono<{ Bindings: CloudflareBindings; Variables: CloudflareVariables }>()
 
-    router.use('*', async (c, next) => {
-        const url = new URL(c.req.url)
-        const baseURL = `${url.protocol}//${url.host}`
-        const auth = createAuth(c.env, baseURL)
-        const session = await auth.api.getSession({
-            headers: c.req.raw.headers,
-        })
-
-        if (!session) {
-            return c.json({ error: 'Unauthorized' }, 401)
-        }
-
-        c.set('userId', session.user.id)
-        await next()
-    })
+    router.use('*', authMiddleware)
 
     router.patch('/name', async (c) => {
         const userId = c.get('userId')
         const { name } = await c.req.json<{ name: string }>()
 
-        if (!name || name.trim().length === 0) {
-            return c.json({ error: 'Name is required' }, 400)
+        try {
+            const validName = validateRequired(name, 'Name')
+            const service = UserService(c.env.DB)
+            const updatedUser = await service.updateUserName(userId, validName)
+            return c.json(updatedUser)
+        } catch (error) {
+            return handleError(c, error, 'Update user name error')
         }
-
-        const service = UserService(c.env.DB)
-        const updatedUser = await service.updateUserName(userId, name)
-        return c.json(updatedUser)
     })
 
     router.patch('/image', async (c) => {
         const userId = c.get('userId')
         const { image } = await c.req.json<{ image: string }>()
 
-        if (!image || image.trim().length === 0) {
-            return c.json({ error: 'Image URL is required' }, 400)
+        try {
+            const validImage = validateRequired(image, 'Image URL')
+            const service = UserService(c.env.DB)
+            const updatedUser = await service.updateUserImage(userId, validImage)
+            return c.json(updatedUser)
+        } catch (error) {
+            return handleError(c, error, 'Update user image error')
         }
-
-        const service = UserService(c.env.DB)
-        const updatedUser = await service.updateUserImage(userId, image)
-        return c.json(updatedUser)
     })
 
     router.patch('/profile', async (c) => {

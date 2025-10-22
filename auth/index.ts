@@ -1,3 +1,4 @@
+import { APP_BASE_URL } from '@/constants/app'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { drizzle } from 'drizzle-orm/d1'
@@ -7,7 +8,7 @@ export const createAuth = (env?: CloudflareBindings, baseURL?: string) => {
     const db = env ? drizzle(env.DB, { schema, logger: true }) : ({} as ReturnType<typeof drizzle>)
 
     return betterAuth({
-        baseURL: baseURL || 'https://log.gumyo.net',
+        baseURL: baseURL || APP_BASE_URL,
         database: env
             ? drizzleAdapter(db, {
                   provider: 'sqlite',

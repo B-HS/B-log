@@ -1,6 +1,8 @@
 import { authClient } from '@/auth/client'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
+import { getInitials } from '@/components/lib/utils'
+import { useImageUpload } from '@/hooks'
 import { Loader2, Upload } from 'lucide-react'
 import { ReactNode, useEffect, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
@@ -8,11 +10,11 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 
 export const UserForm = ({ children }: { children: ReactNode }) => {
-    const [isImageLoading, setIsImageLoading] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [name, setName] = useState<string>()
     const [imageUrl, setImageUrl] = useState<string>()
     const { data: authSession, refetch } = authClient.useSession()
+    const { uploadImage, isLoading: isImageLoading } = useImageUpload()
 
     const updateUserProfile = async () => {
         setIsLoading(true)
@@ -27,29 +29,11 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
-            setIsImageLoading(true)
-            const formData = new FormData()
-            formData.append('file', file)
-
-            const response = await fetch('/api/r2/upload', {
-                method: 'POST',
-                body: formData,
-            })
-            const data = (await response.json()) as { id: string }
-            if (data?.id) {
-                setImageUrl(`https://r2b.gumyo.net/images/${data.id}/thumbnail.webp`)
+            const url = await uploadImage(file)
+            if (url) {
+                setImageUrl(url)
             }
-            setIsImageLoading(false)
         }
-    }
-
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2)
     }
 
     useEffect(() => {

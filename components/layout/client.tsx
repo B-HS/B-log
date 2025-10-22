@@ -1,5 +1,5 @@
-import { hydrateRoot } from 'react-dom/client'
 import * as Pages from '@/components/page'
+import { hydrateRoot } from 'react-dom/client'
 import { Header } from './header'
 
 declare global {

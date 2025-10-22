@@ -1,17 +1,14 @@
-import { eq } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
-import * as schema from '../db/schema'
+import { UserRepository } from '@/repository'
 
 export const UserService = (db: D1Database) => {
-    const drizzleDb = drizzle(db, { schema })
+    const userRepo = UserRepository(db)
+
     const updateUserName = async (userId: string, name: string) => {
-        const [updatedUser] = await drizzleDb.update(schema.user).set({ name, updatedAt: new Date() }).where(eq(schema.user.id, userId)).returning()
-        return updatedUser
+        return await userRepo.updateUser(userId, { name, updatedAt: new Date() })
     }
 
     const updateUserImage = async (userId: string, image: string) => {
-        const [updatedUser] = await drizzleDb.update(schema.user).set({ image, updatedAt: new Date() }).where(eq(schema.user.id, userId)).returning()
-        return updatedUser
+        return await userRepo.updateUser(userId, { image, updatedAt: new Date() })
     }
 
     const updateUserProfile = async (userId: string, data: { name?: string; image?: string }) => {
@@ -27,8 +24,7 @@ export const UserService = (db: D1Database) => {
             updateData.image = data.image
         }
 
-        const [updatedUser] = await drizzleDb.update(schema.user).set(updateData).where(eq(schema.user.id, userId)).returning()
-        return updatedUser
+        return await userRepo.updateUser(userId, updateData)
     }
 
     return {

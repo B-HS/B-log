@@ -1,11 +1,8 @@
-import { MessageItem } from '@/components/layout/message'
 import type { MessageWithImages, PaginatedResponse } from '@/types'
 import { extractImageIds } from '@/utils'
-import { useEffect, useState } from 'react'
-import { MessageForm } from '../layout'
-import { useInfiniteScroll } from '@/hooks'
+import { useState } from 'react'
 
-export const Home = () => {
+export const useMessages = () => {
     const [messages, setMessages] = useState<MessageWithImages[]>([])
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
@@ -32,7 +29,7 @@ export const Home = () => {
         }
     }
 
-    const handleMessageSubmit = async (body: string, imageUrls: string[]) => {
+    const createMessage = async (body: string, imageUrls: string[]) => {
         try {
             const imageIds = extractImageIds(imageUrls)
 
@@ -55,34 +52,17 @@ export const Home = () => {
         }
     }
 
-    const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading)
+    const loadMore = () => {
+        setPage((prev) => prev + 1)
+    }
 
-    useEffect(() => {
-        fetchMessages(page)
-    }, [page])
-
-    return (
-        <div className='flex flex-col'>
-            <MessageForm onSubmit={handleMessageSubmit} />
-            {messages.map((message) => (
-                <MessageItem key={message.id} message={message} />
-            ))}
-
-            {loading && (
-                <div className='flex justify-center p-4'>
-                    <div className='text-muted-foreground'>로딩 중...</div>
-                </div>
-            )}
-
-            {!hasMore && messages.length > 0 && (
-                <div className='flex justify-center p-4'>
-                    <div className='text-muted-foreground'>모든 메시지를 불러왔습니다</div>
-                </div>
-            )}
-
-            {messages.length === 0 && loading === false && <div className='flex justify-center p-8'></div>}
-
-            <div ref={observerTarget} className='h-4' />
-        </div>
-    )
+    return {
+        messages,
+        loading,
+        hasMore,
+        fetchMessages,
+        createMessage,
+        loadMore,
+        page,
+    }
 }

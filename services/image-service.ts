@@ -1,7 +1,6 @@
-import { drizzle } from 'drizzle-orm/d1'
-import * as schema from '../db/schema'
-
-const BUCKET_NAME = 'b-log'
+import { BUCKET_NAME } from '@/constants/app'
+import { ImageAssetRepository } from '@/repository'
+import type { ImageVariant } from '@/types'
 
 type ConvertServerResponse = {
     mobile: string
@@ -11,16 +10,14 @@ type ConvertServerResponse = {
     original: string
 }
 
-type ImageVariantType = 'mobile' | 'tablet' | 'pc' | 'thumbnail'
-
 type SavedImageVariant = {
-    type: ImageVariantType
+    type: ImageVariant
     r2Key: string
 }
 
 export const ImageService = (bucket: R2Bucket, db: D1Database, env: CloudflareBindings) => {
     const CONVERT_SERVER_URL = env?.CONVERT_SERVER_URL || process.env.CONVERT_SERVER_URL || ''
-    const drizzleDb = drizzle(db, { schema })
+    const imageAssetRepo = ImageAssetRepository(db)
 
     const convertImage = async (file: File | Blob): Promise<ConvertServerResponse> => {
         const formData = new FormData()
@@ -65,7 +62,7 @@ export const ImageService = (bucket: R2Bucket, db: D1Database, env: CloudflareBi
         return r2Key
     }
 
-    const saveVariantToR2 = async (imageId: string, type: ImageVariantType, buffer: ArrayBuffer): Promise<string> => {
+    const saveVariantToR2 = async (imageId: string, type: ImageVariant, buffer: ArrayBuffer): Promise<string> => {
         const r2Key = `images/${imageId}/${type}.webp`
 
         await bucket.put(r2Key, buffer, {
@@ -76,34 +73,6 @@ export const ImageService = (bucket: R2Bucket, db: D1Database, env: CloudflareBi
         })
 
         return r2Key
-    }
-
-    const createImageAsset = async (data: {
-        id: string
-        r2Key: string
-        bucket: string
-        mimeType: string
-        sizeBytes: number
-        uploadedBy: string | null
-    }) => {
-        const [imageAsset] = await drizzleDb
-            .insert(schema.imageAsset)
-            .values({
-                id: data.id,
-                r2Key: data.r2Key,
-                bucket: data.bucket,
-                mimeType: data.mimeType,
-                sizeBytes: data.sizeBytes,
-                width: null,
-                height: null,
-                checksum: null,
-                uploadedBy: data.uploadedBy,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            })
-            .returning()
-
-        return imageAsset
     }
 
     const rollbackImageUpload = async (imageId: string) => {
@@ -134,15 +103,15 @@ export const ImageService = (bucket: R2Bucket, db: D1Database, env: CloudflareBi
                 if (type === 'original') continue
 
                 const imageBuffer = await downloadImageFromConvertServer(path)
-                const r2Key = await saveVariantToR2(imageId, type as ImageVariantType, imageBuffer)
+                const r2Key = await saveVariantToR2(imageId, type as ImageVariant, imageBuffer)
 
                 variants.push({
-                    type: type as ImageVariantType,
+                    type: type as ImageVariant,
                     r2Key,
                 })
             }
 
-            const imageAsset = await createImageAsset({
+            const imageAsset = await imageAssetRepo.createImageAsset({
                 id: imageId,
                 r2Key: originalKey,
                 bucket: BUCKET_NAME,
@@ -172,7 +141,6 @@ export const ImageService = (bucket: R2Bucket, db: D1Database, env: CloudflareBi
         downloadImageFromConvertServer,
         saveOriginalToR2,
         saveVariantToR2,
-        createImageAsset,
         rollbackImageUpload,
         uploadImageWithConversion,
     }

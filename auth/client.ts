@@ -1,7 +1,8 @@
+import { APP_BASE_URL } from '@/constants/app'
 import { createAuthClient } from 'better-auth/react'
 
 export const authClient = createAuthClient({
-    baseURL: typeof window !== 'undefined' ? window.location.origin : 'https://log.gumyo.net',
+    baseURL: typeof window !== 'undefined' ? window.location.origin : APP_BASE_URL,
 })
 
 export type Session = typeof authClient.$Infer.Session

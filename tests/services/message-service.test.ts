@@ -23,9 +23,7 @@ describe('MessageService', () => {
     beforeEach(async () => {
         try {
             await db.prepare(`DELETE FROM message_image`).run()
-        } catch (e) {
-            // table might not exist yet
-        }
+        } catch {}
         await db.prepare(`DELETE FROM message`).run()
     })
 
