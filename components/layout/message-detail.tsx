@@ -150,7 +150,7 @@ export const MessageDetail = () => {
                 <h2 id='main-message-heading' className='sr-only'>
                     메인 메시지
                 </h2>
-                <div className='border-b-4 border-border'>
+                <div className='border-b-3.5 border-border'>
                     <MessageItem
                         message={message}
                         currentUserId={session?.user?.id}
@@ -163,7 +163,7 @@ export const MessageDetail = () => {
             </section>
 
             <section aria-labelledby='replies-heading'>
-                <div className='p-4 border-b border-border'>
+                <div className='p-3.5 border-b border-border'>
                     <h2 id='replies-heading' className='text-lg font-semibold'>
                         답글
                     </h2>
@@ -184,13 +184,13 @@ export const MessageDetail = () => {
                 </div>
 
                 {loading && (
-                    <div className='flex justify-center p-4' role='status' aria-live='polite'>
+                    <div className='flex justify-center p-3.5' role='status' aria-live='polite'>
                         <div className='text-muted-foreground'>로딩 중...</div>
                     </div>
                 )}
 
                 {!hasMore && replies.length > 0 && (
-                    <div className='flex justify-center p-4' role='status'>
+                    <div className='flex justify-center p-3.5' role='status'>
                         <div className='text-muted-foreground'>모든 답글을 불러왔습니다</div>
                     </div>
                 )}
@@ -201,7 +201,7 @@ export const MessageDetail = () => {
                     </div>
                 )}
 
-                <div ref={observerTarget} className='h-4' aria-hidden='true' />
+                <div ref={observerTarget} className='h-3.5' aria-hidden='true' />
             </section>
         </>
     )

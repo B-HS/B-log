@@ -61,11 +61,12 @@ export const MessageCard: FC<MessageCardWithActionsProps> = ({ message, currentU
 
     return (
         <>
-            <article className={cn('flex flex-col gap-3 px-3 py-5 hover:bg-muted/30 transition-colors', showReplyForm ? '' : 'border-b border-border')}>
+            <article
+                className={cn('flex flex-col gap-0.5 px-3 py-5 hover:bg-muted/30 transition-colors', showReplyForm ? '' : 'border-b border-border')}>
                 {message.retweetOfId && message.retweetOf && (
                     <>
                         <div className='flex items-center gap-1 text-sm text-muted-foreground mb-2'>
-                            <Repeat2 className='h-4 w-4' />
+                            <Repeat2 className='size-3.5' />
                             <span>Pulled up by</span>
                             <span className='font-medium'>{user.name}</span>
                         </div>

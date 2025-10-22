@@ -128,20 +128,20 @@ export const Home = () => {
             </div>
 
             {loading && (
-                <div className='flex justify-center p-4' role='status' aria-live='polite'>
+                <div className='flex justify-center p-3.5' role='status' aria-live='polite'>
                     <div className='text-muted-foreground'>로딩 중...</div>
                 </div>
             )}
 
             {!hasMore && messages.length > 0 && (
-                <div className='flex justify-center p-4' role='status'>
+                <div className='flex justify-center p-3.5' role='status'>
                     <div className='text-muted-foreground'>모든 메시지를 불러왔습니다</div>
                 </div>
             )}
 
             {messages.length === 0 && loading === false && <div className='flex justify-center p-8'></div>}
 
-            <div ref={observerTarget} className='h-4' aria-hidden='true' />
+            <div ref={observerTarget} className='h-3.5' aria-hidden='true' />
         </main>
     )
 }

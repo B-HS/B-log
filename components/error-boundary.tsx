@@ -36,12 +36,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
             return (
                 <div className='flex flex-col items-center justify-center min-h-[400px] p-8'>
-                    <div className='max-w-md text-center space-y-4'>
+                    <div className='max-w-md text-center space-y-3.5'>
                         <h2 className='text-2xl font-bold text-destructive'>문제가 발생했습니다</h2>
                         <p className='text-muted-foreground'>페이지를 표시하는 중에 오류가 발생했습니다.</p>
                         <button
                             onClick={this.resetError}
-                            className='px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors'>
+                            className='px-3.5 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors'>
                             다시 시도
                         </button>
                     </div>

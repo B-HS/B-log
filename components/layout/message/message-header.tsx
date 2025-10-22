@@ -33,7 +33,7 @@ export const MessageHeader: FC<MessageHeaderProps> = ({ user, createdAt, timeAgo
             </div>
 
             <div className='flex-1 min-w-0'>
-                <div className='flex items-start justify-between gap-2 mb-1'>
+                <div className='flex items-start justify-between gap-2'>
                     <div className='flex items-center gap-2 min-w-0'>
                         <span className='font-semibold text-foreground truncate'>{user.name}</span>
                         <span className='text-muted-foreground text-sm'>·</span>
@@ -48,9 +48,9 @@ export const MessageHeader: FC<MessageHeaderProps> = ({ user, createdAt, timeAgo
                                 <Button
                                     variant='ghost'
                                     size='icon'
-                                    className='h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent'
+                                    className='size-8 text-muted-foreground hover:text-foreground hover:bg-accent'
                                     onClick={(e) => e.preventDefault()}>
-                                    <MoreHorizontal className='h-5 w-5' />
+                                    <MoreHorizontal className='size-5' />
                                     <span className='sr-only'>More options</span>
                                 </Button>
                             </DropdownMenuTrigger>
@@ -61,7 +61,7 @@ export const MessageHeader: FC<MessageHeaderProps> = ({ user, createdAt, timeAgo
                                         e.preventDefault()
                                         onDelete()
                                     }}>
-                                    <Trash2 className='h-5 w-5 mr-2' />
+                                    <Trash2 className='size-5 mr-2' />
                                     삭제
                                 </DropdownMenuItem>
                             </DropdownMenuContent>

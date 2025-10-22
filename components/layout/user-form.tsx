@@ -50,7 +50,7 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
                 <DrawerHeader>
                     <DrawerTitle>User Information</DrawerTitle>
                     <DrawerDescription className='flex flex-col gap-3'>
-                        <div className='flex flex-col items-center gap-4'>
+                        <div className='flex flex-col items-center gap-3.5'>
                             {isImageLoading ? (
                                 <div className='flex items-center justify-center'>
                                     <Loader2 className='size-28 animate-spin' />
@@ -63,7 +63,7 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
                             )}
                             <div className='flex flex-col items-center gap-2'>
                                 <Label htmlFor='image-upload' className='cursor-pointer'>
-                                    <div className='flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground'>
+                                    <div className='flex items-center gap-2 rounded-md border border-input bg-background px-3.5 py-2 text-sm hover:bg-accent hover:text-accent-foreground'>
                                         <Upload className='size-3.5' />
                                         <span>이미지 업로드</span>
                                     </div>
