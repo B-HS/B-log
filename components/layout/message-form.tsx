@@ -9,9 +9,14 @@ import { type FC, useRef, useState } from 'react'
 
 interface MessageFormProps {
     onSubmit?: (body: string, imageUrls: string[]) => void
+    replyTo?: {
+        id: string
+        userName: string
+    }
+    onCancel?: () => void
 }
 
-export const MessageForm: FC<MessageFormProps> = ({ onSubmit }) => {
+export const MessageForm: FC<MessageFormProps> = ({ onSubmit, replyTo, onCancel }) => {
     const { data: session } = authClient.useSession()
     const [body, setBody] = useState('')
     const [attachedImages, setAttachedImages] = useState<string[]>([])
@@ -43,6 +48,9 @@ export const MessageForm: FC<MessageFormProps> = ({ onSubmit }) => {
         }
     }
 
+    const textareaId = replyTo ? `reply-textarea-${replyTo.id}` : 'message-textarea'
+    const labelText = replyTo ? `${replyTo.userName}에게 답글 작성` : '메시지 작성'
+
     return (
         <article className='flex gap-3 border-b border-border p-3 bg-background'>
             <div className='flex-shrink-0'>
@@ -53,9 +61,24 @@ export const MessageForm: FC<MessageFormProps> = ({ onSubmit }) => {
             </div>
 
             <div className='flex-1 min-w-0 space-y-1'>
+                {replyTo && (
+                    <div className='flex items-center justify-between text-sm text-muted-foreground mb-2'>
+                        <span>답장 중: @{replyTo.userName}</span>
+                        {onCancel && (
+                            <Button variant='ghost' size='sm' onClick={onCancel} className='h-6 px-2'>
+                                취소
+                            </Button>
+                        )}
+                    </div>
+                )}
+                <label htmlFor={textareaId} className='sr-only'>
+                    {labelText}
+                </label>
                 <Textarea
+                    id={textareaId}
                     value={body}
                     onChange={(e) => setBody(e.target.value)}
+                    placeholder={labelText}
                     className='focus-visible:ring-0 p-3 text-base shadow-none resize-none min-h-[60px] max-h-[300px] overflow-y-auto'
                     style={{ fieldSizing: 'content' } as React.CSSProperties}
                 />
@@ -93,7 +116,9 @@ export const MessageForm: FC<MessageFormProps> = ({ onSubmit }) => {
                             size='icon'
                             className='shadow-none'
                             onClick={() => fileInputRef.current?.click()}
-                            disabled={isImageLoading}>
+                            disabled={isImageLoading}
+                            aria-label='이미지 첨부'
+                            aria-busy={isImageLoading}>
                             {isImageLoading ? <Loader2 className='size-3.5 animate-spin' /> : <ImageIcon className='size-3.5' />}
                         </Button>
                     </div>

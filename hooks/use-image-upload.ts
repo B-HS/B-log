@@ -1,3 +1,4 @@
+import { apiClient, ApiError } from '@/api/client'
 import { getImageUrl } from '@/utils'
 import { useState } from 'react'
 
@@ -8,23 +9,16 @@ export const useImageUpload = () => {
     const uploadImage = async (file: File) => {
         setIsLoading(true)
         setError(null)
-        const formData = new FormData()
-        formData.append('file', file)
 
         try {
-            const response = await fetch('/api/r2/upload', {
-                method: 'POST',
-                body: formData,
-            })
-            const data = (await response.json()) as { id: string }
+            const data = await apiClient.images.upload(file)
             if (data?.id) {
                 return getImageUrl(data.id, 'thumbnail')
             }
             return null
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Image upload failed'
+        } catch (err) {
+            const errorMessage = err instanceof ApiError ? err.message : '이미지 업로드에 실패했습니다'
             setError(errorMessage)
-            console.error('Image upload failed:', error)
             return null
         } finally {
             setIsLoading(false)

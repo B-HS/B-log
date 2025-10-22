@@ -1,4 +1,5 @@
-export type { MessageWithImages } from './message'
+export type { Message, MessageWithImages, MessageUser, MessageReplyTo, MessageRetweetOf, MessageMetadata } from './message'
 export type { PaginatedResponse } from './pagination'
 export type { ImageAsset, ImageAssetWithUrl, ImageVariant } from './image'
 export type { ApiResponse, ApiErrorResponse } from './api'
+export type { MessageAction, MessageActionType, MessageActionHandlers } from './message-action'

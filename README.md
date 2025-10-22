@@ -9,7 +9,7 @@
 -   [x] shadcn/ui 세팅
 -   [x] user/message/image router + service
 -   [x] SSR with file router (page -> route자동등록)
--   [ ] 헤더
--   [ ] 메신저처럼 게시 + 삭제 + 전체 메시지 page 구현
--   [ ] 마이페이지 (이름, 프로필 수정) 구현
+-   [x] 헤더
+-   [x] 메신저처럼 게시 + 삭제 + 전체 메시지 page 구현
+-   [x] 마이페이지 (이름, 프로필 수정) 구현
 -   [ ] 유저 메시지 페이지 구현

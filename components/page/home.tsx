@@ -1,22 +1,28 @@
 import { MessageItem } from '@/components/layout/message'
 import type { MessageWithImages, PaginatedResponse } from '@/types'
 import { extractImageIds } from '@/utils'
+import { authClient } from '@/auth/client'
 import { useEffect, useState } from 'react'
 import { MessageForm } from '../layout'
-import { useInfiniteScroll } from '@/hooks'
+import { useInfiniteScroll, useMessageActions } from '@/hooks'
 
 export const Home = () => {
     const [messages, setMessages] = useState<MessageWithImages[]>([])
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
+    const { data: session } = authClient.useSession()
+    const { deleteMessage, handleRetweet, handleShare } = useMessageActions()
 
     const fetchMessages = async (pageNum: number, size = 10, replace = false) => {
         if (!replace && (loading || !hasMore)) return
 
         setLoading(true)
         try {
-            const response = await fetch(`/api/messages?page=${pageNum}&size=${size}`)
+            const url = session?.user?.id
+                ? `/api/messages?page=${pageNum}&size=${size}&currentUserId=${session.user.id}`
+                : `/api/messages?page=${pageNum}&size=${size}`
+            const response = await fetch(url)
             const data: PaginatedResponse<MessageWithImages> = await response.json()
 
             if (replace) {
@@ -55,34 +61,87 @@ export const Home = () => {
         }
     }
 
+    const handleDelete = async (messageId: string) => {
+        const success = await deleteMessage(messageId)
+        if (success) {
+            setMessages((prev) => prev.filter((m) => m.id !== messageId))
+        }
+    }
+
+    const handleReplySubmit = async (messageId: string, body: string, imageUrls: string[]) => {
+        try {
+            const imageIds = extractImageIds(imageUrls)
+
+            const response = await fetch('/api/messages/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ replyToId: messageId, body, imageIds }),
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to create reply')
+            }
+
+            await fetchMessages(1, page * 10, true)
+            setPage(1)
+        } catch (error) {
+            console.error('Failed to submit reply:', error)
+        }
+    }
+
+    const handleRetweetClick = async (messageId: string) => {
+        const success = await handleRetweet(messageId)
+        if (success) {
+            await fetchMessages(1, page * 10, true)
+            setPage(1)
+        }
+    }
+
     const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading)
 
     useEffect(() => {
-        fetchMessages(page)
-    }, [page])
+        if (page === 1) {
+            fetchMessages(1, 10, true)
+        } else {
+            fetchMessages(page)
+        }
+    }, [page, session?.user?.id])
 
     return (
-        <div className='flex flex-col'>
+        <main>
+            <h1 className='sr-only'>타임라인</h1>
             <MessageForm onSubmit={handleMessageSubmit} />
-            {messages.map((message) => (
-                <MessageItem key={message.id} message={message} />
-            ))}
+            <div role='feed' aria-label='메시지 타임라인'>
+                {messages.map((message) => (
+                    <MessageItem
+                        key={message.id}
+                        message={message}
+                        currentUserId={session?.user?.id}
+                        onDelete={handleDelete}
+                        onReply={handleReplySubmit}
+                        onRetweet={handleRetweetClick}
+                        onShare={handleShare}
+                    />
+                ))}
+            </div>
 
             {loading && (
-                <div className='flex justify-center p-4'>
+                <div className='flex justify-center p-4' role='status' aria-live='polite'>
                     <div className='text-muted-foreground'>로딩 중...</div>
                 </div>
             )}
 
             {!hasMore && messages.length > 0 && (
-                <div className='flex justify-center p-4'>
+                <div className='flex justify-center p-4' role='status'>
                     <div className='text-muted-foreground'>모든 메시지를 불러왔습니다</div>
                 </div>
             )}
 
             {messages.length === 0 && loading === false && <div className='flex justify-center p-8'></div>}
 
-            <div ref={observerTarget} className='h-4' />
-        </div>
+            <div ref={observerTarget} className='h-4' aria-hidden='true' />
+        </main>
     )
 }

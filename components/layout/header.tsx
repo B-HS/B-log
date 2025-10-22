@@ -11,24 +11,28 @@ export const Header = () => {
         })
     return (
         <header className='flex justify-between items-center border-b border-border'>
-            <h1 className='text-md font-bold px-2 py-0.75'>B-Log</h1>
-            <div className='flex items-center gap-2'>
-                {isPending ? (
-                    <Button size={'icon'} variant='ghost'>
-                        <LoaderCircle className='animate-spin' />
-                    </Button>
-                ) : session?.user?.id ? (
-                    <UserForm>
-                        <Button size={'icon'} variant='ghost'>
-                            <UserIcon />
+            <a href='/' className='text-md font-bold px-2 py-0.75 hover:opacity-80 transition-opacity'>
+                <h1>B-Log</h1>
+            </a>
+            <nav aria-label='사용자 메뉴'>
+                <div className='flex items-center gap-2'>
+                    {isPending ? (
+                        <Button size={'icon'} variant='ghost' aria-label='로딩 중' disabled>
+                            <LoaderCircle className='animate-spin' />
                         </Button>
-                    </UserForm>
-                ) : (
-                    <Button size={'icon'} variant='ghost' onClick={handleSignIn}>
-                        <LogIn />
-                    </Button>
-                )}
-            </div>
+                    ) : session?.user?.id ? (
+                        <UserForm>
+                            <Button size={'icon'} variant='ghost' aria-label='사용자 메뉴'>
+                                <UserIcon />
+                            </Button>
+                        </UserForm>
+                    ) : (
+                        <Button size={'icon'} variant='ghost' onClick={handleSignIn} aria-label='GitHub로 로그인'>
+                            <LogIn />
+                        </Button>
+                    )}
+                </div>
+            </nav>
         </header>
     )
 }

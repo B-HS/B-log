@@ -95,6 +95,8 @@ export const message = sqliteTable(
             .notNull()
             .references(() => user.id, { onDelete: 'cascade' }),
         body: text('body').notNull(),
+        replyToId: text('reply_to_id'),
+        retweetOfId: text('retweet_of_id'),
         createdAt: integer('created_at', { mode: 'timestamp_ms' })
             .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
             .notNull(),

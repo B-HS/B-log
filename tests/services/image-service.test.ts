@@ -5,12 +5,14 @@ import { setupMiniflare, teardownMiniflare } from '../setup'
 describe('ImageService', () => {
     let db: D1Database
     let bucket: R2Bucket
+    let env: CloudflareBindings
     let originalFetch: typeof global.fetch
 
     beforeAll(async () => {
         const setup = await setupMiniflare()
         db = setup.db
         bucket = setup.bucket as unknown as R2Bucket
+        env = { CONVERT_SERVER_URL: 'http://localhost:3000' } as CloudflareBindings
         originalFetch = global.fetch
     })
 
@@ -36,7 +38,7 @@ describe('ImageService', () => {
                     }),
                 }) as unknown as Response) as unknown as typeof fetch
 
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             const result = await service.convertImage(mockFile)
 
             expect(result.mobile).toBe('/mobile.webp')
@@ -56,7 +58,7 @@ describe('ImageService', () => {
                     text: async () => 'Server error',
                 }) as unknown as Response) as unknown as typeof fetch
 
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
 
             await expect(service.convertImage(mockFile)).rejects.toThrow('Convert server error')
         })
@@ -71,7 +73,7 @@ describe('ImageService', () => {
                     arrayBuffer: async () => new ArrayBuffer(1024),
                 }) as unknown as Response) as unknown as typeof fetch
 
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             const result = await service.downloadImageFromConvertServer('/test.webp')
 
             expect(result).toBeInstanceOf(ArrayBuffer)
@@ -85,7 +87,7 @@ describe('ImageService', () => {
                     status: 404,
                 }) as unknown as Response) as unknown as typeof fetch
 
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
 
             await expect(service.downloadImageFromConvertServer('/not-found.webp')).rejects.toThrow('Failed to download image')
         })
@@ -93,7 +95,7 @@ describe('ImageService', () => {
 
     describe('saveOriginalToR2', () => {
         it('원본 이미지를 R2에 저장해야 함', async () => {
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             const buffer = new ArrayBuffer(1024)
 
             const key = await service.saveOriginalToR2('test-id', buffer, 'image/jpeg')
@@ -105,7 +107,7 @@ describe('ImageService', () => {
         })
 
         it('mimeType에서 확장자를 추출해야 함', async () => {
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             const buffer = new ArrayBuffer(1024)
 
             const key = await service.saveOriginalToR2('test-id-2', buffer, 'image/png')
@@ -116,7 +118,7 @@ describe('ImageService', () => {
 
     describe('saveVariantToR2', () => {
         it('변환된 이미지를 R2에 저장해야 함', async () => {
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             const buffer = new ArrayBuffer(512)
 
             const key = await service.saveVariantToR2('test-id-3', 'mobile', buffer)
@@ -128,7 +130,7 @@ describe('ImageService', () => {
         })
 
         it('모든 variant 타입을 저장할 수 있어야 함', async () => {
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             const buffer = new ArrayBuffer(512)
 
             const variants = ['mobile', 'tablet', 'pc', 'thumbnail'] as const
@@ -143,41 +145,13 @@ describe('ImageService', () => {
         })
     })
 
-    describe('createImageAsset', () => {
-        it('이미지 메타데이터를 DB에 저장해야 함', async () => {
-            await db
-                .prepare(
-                    `INSERT INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES ('img-user-1', 'Image User', 'img@example.com', 0, null, unixepoch('subsec') * 1000, unixepoch('subsec') * 1000)`,
-                )
-                .run()
-
-            const service = ImageService(bucket, db)
-
-            const result = await service.createImageAsset({
-                id: 'img-1',
-                r2Key: 'images/img-1/original.jpg',
-                bucket: 'b-log',
-                mimeType: 'image/jpeg',
-                sizeBytes: 1024,
-                uploadedBy: 'img-user-1',
-            })
-
-            expect(result).toBeDefined()
-            expect(result.id).toBe('img-1')
-            expect(result.mimeType).toBe('image/jpeg')
-
-            const stored = await db.prepare(`SELECT * FROM image_asset WHERE id = ?`).bind('img-1').first()
-            expect(stored).not.toBeNull()
-        })
-    })
-
     describe('rollbackImageUpload', () => {
         it('업로드된 모든 이미지 파일을 삭제해야 함', async () => {
             await bucket.put('images/rollback-test/original.jpg', new ArrayBuffer(100))
             await bucket.put('images/rollback-test/mobile.webp', new ArrayBuffer(50))
             await bucket.put('images/rollback-test/tablet.webp', new ArrayBuffer(50))
 
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             await service.rollbackImageUpload('rollback-test')
 
             const original = await bucket.get('images/rollback-test/original.jpg')
@@ -190,7 +164,7 @@ describe('ImageService', () => {
         })
 
         it('에러 발생 시에도 실패하지 않아야 함', async () => {
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
 
             await service.rollbackImageUpload('non-existent-id')
         })
@@ -231,7 +205,7 @@ describe('ImageService', () => {
                 }
             }) as unknown as typeof fetch
 
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
             const result = await service.uploadImageWithConversion(mockFile, 'upload-user')
 
             expect(result).toBeDefined()
@@ -259,7 +233,7 @@ describe('ImageService', () => {
                     text: async () => 'Conversion failed',
                 }) as unknown as Response) as unknown as typeof fetch
 
-            const service = ImageService(bucket, db)
+            const service = ImageService(bucket, db, env)
 
             await expect(service.uploadImageWithConversion(mockFile, 'user-1')).rejects.toThrow()
         })
