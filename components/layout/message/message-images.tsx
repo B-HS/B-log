@@ -1,5 +1,6 @@
 import { DEFAULT_IMAGE_URL } from '@/constants'
 import { cn } from '@/components/lib/utils'
+import { getImageUrl } from '@/utils'
 import type { FC } from 'react'
 import type { ImageAssetWithUrl } from '@/types'
 
@@ -17,26 +18,33 @@ export const MessageImages: FC<MessageImagesProps> = ({ images, userName }) => {
                 'grid gap-2 rounded-xl overflow-hidden mb-3',
                 images.length === 1 ? 'grid-cols-1' : images.length === 2 ? 'grid-cols-2' : images.length === 3 ? 'grid-cols-2' : 'grid-cols-2',
             )}>
-            {images.map((image, index) => (
-                <div
-                    key={image.id}
-                    className={cn(
-                        'relative bg-muted',
-                        images.length === 3 && index === 0 ? 'col-span-2' : images.length > 4 && index >= 3 ? 'hidden' : '',
-                        images.length === 1 ? 'aspect-video max-h-[500px]' : 'aspect-square',
-                    )}>
-                    <img
-                        src={image.url || DEFAULT_IMAGE_URL}
-                        alt={`${userName}님이 첨부한 이미지 ${index + 1}/${images.length}`}
-                        className='w-full h-full object-cover'
-                    />
-                    {images.length > 4 && index === 3 && (
-                        <div className='absolute inset-0 bg-black/60 flex items-center justify-center'>
-                            <span className='text-white text-2xl font-semibold'>+{images.length - 4}</span>
-                        </div>
-                    )}
-                </div>
-            ))}
+            {images.map((image, index) => {
+                const originalImageUrl = getImageUrl(image.id, 'original')
+
+                return (
+                    <a
+                        key={image.id}
+                        href={originalImageUrl}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        className={cn(
+                            'relative bg-muted cursor-pointer hover:opacity-95 transition-opacity',
+                            images.length === 3 && index === 0 ? 'col-span-2' : images.length > 4 && index >= 3 ? 'hidden' : '',
+                            images.length === 1 ? 'aspect-video max-h-[500px]' : 'aspect-square',
+                        )}>
+                        <img
+                            src={image.url || DEFAULT_IMAGE_URL}
+                            alt={`${userName}님이 첨부한 이미지 ${index + 1}/${images.length}`}
+                            className='w-full h-full object-cover'
+                        />
+                        {images.length > 4 && index === 3 && (
+                            <div className='absolute inset-0 bg-black/60 flex items-center justify-center'>
+                                <span className='text-white text-2xl font-semibold'>+{images.length - 4}</span>
+                            </div>
+                        )}
+                    </a>
+                )
+            })}
         </div>
     )
 }

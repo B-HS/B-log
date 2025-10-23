@@ -6,4 +6,4 @@ export type ImageAssetWithUrl = ImageAsset & {
     url: string
 }
 
-export type ImageVariant = 'thumbnail' | 'mobile' | 'tablet' | 'pc'
+export type ImageVariant = 'thumbnail' | 'mobile' | 'tablet' | 'pc' | 'original'
