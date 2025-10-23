@@ -2,7 +2,7 @@ import { MessageItem } from '@/components/layout/message'
 import type { MessageWithImages, PaginatedResponse } from '@/types'
 import { extractImageIds } from '@/utils'
 import { authClient } from '@/auth/client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { MessageForm } from '../layout'
 import { useInfiniteScroll, useMessageActions } from '@/hooks'
 
@@ -14,29 +14,32 @@ export const Home = () => {
     const { data: session, isPending } = authClient.useSession()
     const { deleteMessage, handleRetweet, deleteRetweet } = useMessageActions()
 
-    const fetchMessages = async (pageNum: number, size = 10, replace = false) => {
-        if (!replace && (loading || !hasMore)) return
+    const fetchMessages = useCallback(
+        async (pageNum: number, size = 10, replace = false) => {
+            if (!replace && (loading || !hasMore)) return
 
-        setLoading(true)
-        try {
-            const url = session?.user?.id
-                ? `/api/messages?page=${pageNum}&size=${size}&currentUserId=${session.user.id}`
-                : `/api/messages?page=${pageNum}&size=${size}`
-            const response = await fetch(url)
-            const data: PaginatedResponse<MessageWithImages> = await response.json()
+            setLoading(true)
+            try {
+                const url = session?.user?.id
+                    ? `/api/messages?page=${pageNum}&size=${size}&currentUserId=${session.user.id}`
+                    : `/api/messages?page=${pageNum}&size=${size}`
+                const response = await fetch(url)
+                const data: PaginatedResponse<MessageWithImages> = await response.json()
 
-            if (replace) {
-                setMessages(data.content)
-            } else {
-                setMessages((prev) => [...prev, ...data.content])
+                if (replace) {
+                    setMessages(data.content)
+                } else {
+                    setMessages((prev) => [...prev, ...data.content])
+                }
+                setHasMore(data.next !== null)
+            } catch (error) {
+                console.error('Failed to fetch messages:', error)
+            } finally {
+                setLoading(false)
             }
-            setHasMore(data.next !== null)
-        } catch (error) {
-            console.error('Failed to fetch messages:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
+        },
+        [loading, hasMore, session?.user?.id],
+    )
 
     const handleMessageSubmit = async (body: string, imageUrls: string[]) => {
         try {
@@ -107,7 +110,16 @@ export const Home = () => {
         }
     }
 
-    const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading, page)
+    const observerTarget = useInfiniteScroll(
+        () => {
+            if (!loading) {
+                setPage((prev) => prev + 1)
+            }
+        },
+        hasMore,
+        loading,
+        page,
+    )
 
     useEffect(() => {
         if (isPending) return
@@ -117,7 +129,7 @@ export const Home = () => {
         } else {
             fetchMessages(page)
         }
-    }, [page, session?.user?.id, isPending])
+    }, [page, isPending, fetchMessages])
 
     return (
         <>
