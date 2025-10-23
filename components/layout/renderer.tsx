@@ -9,6 +9,7 @@ export const Layout = ({ children, page }: { children: React.ReactNode; page?: s
             <head>
                 <meta charSet='utf-8' />
                 <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+                <link rel='icon' type='image/x-icon' href='https://blog.gumyo.net/favicon.ico' />
                 <Link href='/components/global.css' rel='stylesheet' />
                 {page && <script dangerouslySetInnerHTML={{ __html: `window.__PAGE__="${page}"` }} />}
                 <Script src='/components/layout/client.tsx' />
