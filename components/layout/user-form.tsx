@@ -1,7 +1,7 @@
 import { authClient } from '@/auth/client'
+import { getInitials } from '@/components/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
-import { getInitials } from '@/components/lib/utils'
 import { useImageUpload } from '@/hooks'
 import { Loader2, Upload } from 'lucide-react'
 import { ReactNode, useEffect, useState } from 'react'
@@ -34,6 +34,12 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
                 setImageUrl(url)
             }
         }
+    }
+
+    const logout = async () => {
+        await authClient.signOut().then(() => {
+            window.location.href = '/'
+        })
     }
 
     useEffect(() => {
@@ -104,6 +110,9 @@ export const UserForm = ({ children }: { children: ReactNode }) => {
                     </DrawerDescription>
                 </DrawerHeader>
                 <DrawerFooter>
+                    <Button variant='outline' onClick={logout} disabled={isLoading}>
+                        로그아웃
+                    </Button>
                     <Button onClick={updateUserProfile} disabled={isLoading}>
                         {isLoading ? '저장 중' : '저장'}
                     </Button>

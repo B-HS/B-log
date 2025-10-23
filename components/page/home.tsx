@@ -11,7 +11,7 @@ export const Home = () => {
     const [page, setPage] = useState(1)
     const [loading, setLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
-    const { data: session } = authClient.useSession()
+    const { data: session, isPending } = authClient.useSession()
     const { deleteMessage, handleRetweet, deleteRetweet } = useMessageActions()
 
     const fetchMessages = async (pageNum: number, size = 10, replace = false) => {
@@ -110,12 +110,14 @@ export const Home = () => {
     const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading)
 
     useEffect(() => {
+        if (isPending) return
+
         if (page === 1) {
             fetchMessages(1, 10, true)
         } else {
             fetchMessages(page)
         }
-    }, [page, session?.user?.id])
+    }, [page, session?.user?.id, isPending])
 
     return (
         <>
