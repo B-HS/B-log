@@ -20,9 +20,10 @@ export const createMessageRouter = () => {
         const userId = c.req.param('userId')
         const page = parseInt(c.req.query('page') || '1')
         const size = parseInt(c.req.query('size') || '10')
+        const currentUserId = c.req.query('currentUserId')
 
         const service = MessageService(c.env.DB)
-        const result = await service.getMessages(page, size, userId)
+        const result = await service.getMessages(page, size, userId, currentUserId)
         return c.json(result)
     })
 
@@ -97,22 +98,17 @@ export const createMessageRouter = () => {
 
     router.get('/:id', async (c) => {
         const messageId = c.req.param('id')
-        console.log('[GET /:id] Fetching message:', messageId)
 
         try {
             const service = MessageService(c.env.DB)
             const message = await service.getMessageById(messageId)
 
-            console.log('[GET /:id] Message found:', !!message)
-
             if (!message) {
-                console.log('[GET /:id] Message not found for id:', messageId)
                 return c.json({ error: 'Message not found' }, 404)
             }
 
             return c.json(message)
         } catch (error) {
-            console.error('[GET /:id] Error:', error)
             return handleError(c, error, 'Get message error')
         }
     })

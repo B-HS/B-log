@@ -1,6 +1,7 @@
 import type { MessageWithImages, PaginatedResponse } from '@/types'
 import { extractImageIds } from '@/utils'
 import { useState } from 'react'
+import { apiClient } from '@/api/client'
 
 export const useMessages = () => {
     const [messages, setMessages] = useState<MessageWithImages[]>([])
@@ -13,8 +14,7 @@ export const useMessages = () => {
 
         setLoading(true)
         try {
-            const response = await fetch(`/api/messages?page=${pageNum}&size=${size}`)
-            const data: PaginatedResponse<MessageWithImages> = await response.json()
+            const data = await apiClient.messages.getList({ page: pageNum, size })
 
             if (replace) {
                 setMessages(data.content)
@@ -32,19 +32,7 @@ export const useMessages = () => {
     const createMessage = async (body: string, imageUrls: string[]) => {
         try {
             const imageIds = extractImageIds(imageUrls)
-
-            const response = await fetch('/api/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ body, imageIds }),
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to create message')
-            }
-
+            await apiClient.messages.create({ body, imageIds })
             await fetchMessages(1, page * 10, true)
             setPage(1)
         } catch (error) {

@@ -10,7 +10,6 @@ interface MessageActionsProps {
     isRetweeted?: boolean
     onReply?: () => void
     onRetweet?: (messageId: string) => void
-    onShare?: (messageId: string) => void
 }
 
 export const MessageActions: FC<MessageActionsProps> = ({
@@ -20,12 +19,10 @@ export const MessageActions: FC<MessageActionsProps> = ({
     isRetweeted,
     onReply,
     onRetweet,
-    onShare,
 }) => {
     const actionHandlers: Record<string, ((messageId: string) => void) | undefined> = {
         reply: onReply,
         retweet: onRetweet,
-        share: onShare,
     }
 
     return (

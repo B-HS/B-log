@@ -2,6 +2,7 @@ import * as Pages from '@/components/page'
 import { hydrateRoot } from 'react-dom/client'
 import { Header } from './header'
 import { ToastProvider } from '../ui/toast'
+import { TooltipProvider } from '../ui/tooltip'
 
 declare global {
     interface Window {
@@ -18,8 +19,12 @@ if (root && window.__PAGE__) {
         hydrateRoot(
             root,
             <ToastProvider>
-                <Header />
-                <PageComponent />
+                <TooltipProvider delayDuration={500} skipDelayDuration={200}>
+                    <Header />
+                    <main id='main-content'>
+                        <PageComponent />
+                    </main>
+                </TooltipProvider>
             </ToastProvider>,
         )
     }

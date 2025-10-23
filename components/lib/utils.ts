@@ -1,7 +1,7 @@
-import { clsx } from 'clsx'
+import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-export const cn = (...classes: string[]) => twMerge(clsx(classes))
+export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs))
 
 export const getInitials = (name: string) => {
     return name

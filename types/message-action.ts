@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 
-export type MessageActionType = 'reply' | 'retweet' | 'share' | 'delete'
+export type MessageActionType = 'reply' | 'retweet' | 'delete'
 
 export type MessageAction = {
     type: MessageActionType
@@ -13,6 +13,6 @@ export type MessageAction = {
 export type MessageActionHandlers = {
     onReply?: (messageId: string, body: string, imageUrls: string[]) => void
     onRetweet?: (messageId: string) => void
-    onShare?: (messageId: string) => void
+    onRetweetDelete?: (messageId: string) => void
     onDelete?: (messageId: string) => void
 }

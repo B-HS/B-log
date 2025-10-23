@@ -1,4 +1,4 @@
-import type { MessageWithImages, PaginatedResponse, ApiResponse, ApiErrorResponse } from '@/types'
+import type { MessageWithImages, PaginatedResponse, ApiResponse, ApiErrorResponse, UserProfile } from '@/types'
 
 class ApiError extends Error {
     constructor(
@@ -83,6 +83,38 @@ export const apiClient = {
 
         deleteRetweet: (messageId: string) => {
             return request<{ success: boolean }>(`/api/messages/${messageId}/retweet`, {
+                method: 'DELETE',
+            })
+        },
+
+        getUserMessages: (userId: string, params: { page?: number; size?: number; currentUserId?: string }) => {
+            const searchParams = new URLSearchParams()
+            if (params.page) searchParams.set('page', params.page.toString())
+            if (params.size) searchParams.set('size', params.size.toString())
+            if (params.currentUserId) searchParams.set('currentUserId', params.currentUserId)
+
+            return request<PaginatedResponse<MessageWithImages>>(`/api/messages/user/${userId}?${searchParams.toString()}`)
+        },
+    },
+
+    users: {
+        getProfile: (userId: string, currentUserId?: string) => {
+            const searchParams = new URLSearchParams()
+            if (currentUserId) searchParams.set('currentUserId', currentUserId)
+
+            return request<UserProfile>(`/api/user/${userId}?${searchParams.toString()}`)
+        },
+    },
+
+    follow: {
+        followUser: (userId: string) => {
+            return request<{ success: boolean }>(`/api/follow/${userId}`, {
+                method: 'POST',
+            })
+        },
+
+        unfollowUser: (userId: string) => {
+            return request<{ success: boolean }>(`/api/follow/${userId}`, {
                 method: 'DELETE',
             })
         },

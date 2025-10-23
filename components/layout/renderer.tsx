@@ -1,6 +1,7 @@
 import { Link, Script, ViteClient } from 'vite-ssr-components/react'
 import { Header } from './header'
 import { ToastProvider } from '../ui/toast'
+import { TooltipProvider } from '../ui/tooltip'
 
 export const Layout = ({ children, page }: { children: React.ReactNode; page?: string }) => {
     return (
@@ -17,12 +18,14 @@ export const Layout = ({ children, page }: { children: React.ReactNode; page?: s
                 <a href='#main-content' className='skip-link'>
                     메인 콘텐츠로 건너뛰기
                 </a>
-                <ToastProvider>
-                    <div id='root' className='w-full max-w-screen-sm sm:border-l sm:border-r min-h-dvh'>
-                        <Header />
-                        <div id='main-content'>{children}</div>
-                    </div>
-                </ToastProvider>
+                <div id='root' className='w-full max-w-screen-sm sm:border-l sm:border-r min-h-dvh'>
+                    <ToastProvider>
+                        <TooltipProvider delayDuration={500} skipDelayDuration={200}>
+                            <Header />
+                            <main id='main-content'>{children}</main>
+                        </TooltipProvider>
+                    </ToastProvider>
+                </div>
             </body>
         </html>
     )

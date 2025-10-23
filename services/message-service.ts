@@ -1,6 +1,6 @@
 import { and, isNull, eq } from 'drizzle-orm'
 import * as schema from '@/db/schema'
-import type { MessageWithImages, PaginatedResponse, ImageAssetWithUrl } from '@/types'
+import type { MessageWithImages, ImageAssetWithUrl } from '@/types'
 import { MessageRepository, MessageImageRepository } from '@/repository'
 import { getImageUrl } from '@/utils'
 
@@ -8,7 +8,7 @@ export const MessageService = (db: D1Database) => {
     const messageRepo = MessageRepository(db)
     const messageImageRepo = MessageImageRepository(db)
 
-    const getMessages = async (page: number, size: number, userId?: string, currentUserId?: string): Promise<PaginatedResponse<MessageWithImages>> => {
+    const getMessages = async (page: number, size: number, userId?: string, currentUserId?: string) => {
         const whereConditions = userId ? and(isNull(schema.message.deletedAt), eq(schema.message.userId, userId)) : isNull(schema.message.deletedAt)
 
         const totalElements = await messageRepo.countMessages(whereConditions)
@@ -241,7 +241,7 @@ export const MessageService = (db: D1Database) => {
         return { success: true }
     }
 
-    const getMessageById = async (messageId: string): Promise<MessageWithImages | null> => {
+    const getMessageById = async (messageId: string) => {
         const messages = await messageRepo.findMessagesByIds([messageId])
 
         if (messages.length === 0) {
@@ -321,7 +321,7 @@ export const MessageService = (db: D1Database) => {
         }
     }
 
-    const getRepliesByMessageId = async (messageId: string, page: number, size: number): Promise<PaginatedResponse<MessageWithImages>> => {
+    const getRepliesByMessageId = async (messageId: string, page: number, size: number) => {
         const totalElements = await messageRepo.countRepliesByMessageId(messageId)
         const totalPages = Math.ceil(totalElements / size)
 

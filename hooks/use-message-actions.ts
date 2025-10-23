@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { apiClient } from '@/api/client'
 
 export const useMessageActions = () => {
     const [isDeleting, setIsDeleting] = useState(false)
@@ -7,14 +8,7 @@ export const useMessageActions = () => {
     const deleteMessage = async (messageId: string) => {
         setIsDeleting(true)
         try {
-            const response = await fetch(`/api/messages/${messageId}`, {
-                method: 'DELETE',
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to delete message')
-            }
-
+            await apiClient.messages.delete(messageId)
             return true
         } catch (error) {
             console.error('Failed to delete message:', error)
@@ -27,17 +21,7 @@ export const useMessageActions = () => {
     const handleRetweet = async (messageId: string) => {
         setIsRetweeting(true)
         try {
-            const response = await fetch(`/api/messages/${messageId}/retweet`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to retweet message')
-            }
-
+            await apiClient.messages.createRetweet(messageId)
             return true
         } catch (error) {
             console.error('Failed to retweet message:', error)
@@ -47,14 +31,23 @@ export const useMessageActions = () => {
         }
     }
 
-    const handleShare = (messageId: string) => {
-        console.log('Share message:', messageId)
+    const deleteRetweet = async (messageId: string) => {
+        setIsRetweeting(true)
+        try {
+            await apiClient.messages.deleteRetweet(messageId)
+            return true
+        } catch (error) {
+            console.error('Failed to delete retweet:', error)
+            return false
+        } finally {
+            setIsRetweeting(false)
+        }
     }
 
     return {
         deleteMessage,
         handleRetweet,
-        handleShare,
+        deleteRetweet,
         isDeleting,
         isRetweeting,
     }

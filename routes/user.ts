@@ -6,9 +6,25 @@ import { UserService } from '../services'
 export const createUserRouter = () => {
     const router = new Hono<{ Bindings: CloudflareBindings; Variables: CloudflareVariables }>()
 
-    router.use('*', authMiddleware)
+    router.get('/:userId', async (c) => {
+        const userId = c.req.param('userId')
+        const currentUserId = c.req.query('currentUserId')
 
-    router.patch('/name', async (c) => {
+        try {
+            const service = UserService(c.env.DB)
+            const profile = await service.getUserProfile(userId, currentUserId)
+
+            if (!profile) {
+                return c.json({ error: 'User not found' }, 404)
+            }
+
+            return c.json(profile)
+        } catch (error) {
+            return handleError(c, error, 'Get user profile error')
+        }
+    })
+
+    router.patch('/name', authMiddleware, async (c) => {
         const userId = c.get('userId')
         const { name } = await c.req.json<{ name: string }>()
 
@@ -22,7 +38,7 @@ export const createUserRouter = () => {
         }
     })
 
-    router.patch('/image', async (c) => {
+    router.patch('/image', authMiddleware, async (c) => {
         const userId = c.get('userId')
         const { image } = await c.req.json<{ image: string }>()
 
@@ -36,7 +52,7 @@ export const createUserRouter = () => {
         }
     })
 
-    router.patch('/profile', async (c) => {
+    router.patch('/profile', authMiddleware, async (c) => {
         const userId = c.get('userId')
         const data = await c.req.json<{ name?: string; image?: string }>()
 

@@ -13,7 +13,7 @@ export const MessageDetail = () => {
     const [hasMore, setHasMore] = useState(true)
     const [messageId, setMessageId] = useState<string | null>(null)
     const { data: session } = authClient.useSession()
-    const { deleteMessage, handleRetweet, handleShare } = useMessageActions()
+    const { deleteMessage, handleRetweet, deleteRetweet } = useMessageActions()
 
     useEffect(() => {
         const id = new URLSearchParams(window.location.search).get('id')
@@ -102,6 +102,15 @@ export const MessageDetail = () => {
         }
     }
 
+    const handleRetweetDelete = async (msgId: string) => {
+        const success = await deleteRetweet(msgId)
+        if (success) {
+            await fetchMessage()
+            await fetchReplies(1, page * 10, true)
+            setPage(1)
+        }
+    }
+
     const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading)
 
     useEffect(() => {
@@ -157,7 +166,7 @@ export const MessageDetail = () => {
                         onDelete={handleDelete}
                         onReply={handleReplySubmit}
                         onRetweet={handleRetweetClick}
-                        onShare={handleShare}
+                        onRetweetDelete={handleRetweetDelete}
                     />
                 </div>
             </section>
@@ -178,7 +187,7 @@ export const MessageDetail = () => {
                             onDelete={handleDelete}
                             onReply={handleReplySubmit}
                             onRetweet={handleRetweetClick}
-                            onShare={handleShare}
+                            onRetweetDelete={handleRetweetDelete}
                         />
                     ))}
                 </div>

@@ -12,7 +12,7 @@ export const Home = () => {
     const [loading, setLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const { data: session } = authClient.useSession()
-    const { deleteMessage, handleRetweet, handleShare } = useMessageActions()
+    const { deleteMessage, handleRetweet, deleteRetweet } = useMessageActions()
 
     const fetchMessages = async (pageNum: number, size = 10, replace = false) => {
         if (!replace && (loading || !hasMore)) return
@@ -99,6 +99,14 @@ export const Home = () => {
         }
     }
 
+    const handleRetweetDelete = async (messageId: string) => {
+        const success = await deleteRetweet(messageId)
+        if (success) {
+            await fetchMessages(1, page * 10, true)
+            setPage(1)
+        }
+    }
+
     const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading)
 
     useEffect(() => {
@@ -110,9 +118,9 @@ export const Home = () => {
     }, [page, session?.user?.id])
 
     return (
-        <main>
+        <>
             <h1 className='sr-only'>타임라인</h1>
-            <MessageForm onSubmit={handleMessageSubmit} />
+            {session?.user?.id && <MessageForm onSubmit={handleMessageSubmit} />}
             <div role='feed' aria-label='메시지 타임라인'>
                 {messages.map((message) => (
                     <MessageItem
@@ -122,7 +130,7 @@ export const Home = () => {
                         onDelete={handleDelete}
                         onReply={handleReplySubmit}
                         onRetweet={handleRetweetClick}
-                        onShare={handleShare}
+                        onRetweetDelete={handleRetweetDelete}
                     />
                 ))}
             </div>
@@ -142,6 +150,6 @@ export const Home = () => {
             {messages.length === 0 && loading === false && <div className='flex justify-center p-8'></div>}
 
             <div ref={observerTarget} className='h-3.5' aria-hidden='true' />
-        </main>
+        </>
     )
 }

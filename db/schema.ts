@@ -179,3 +179,19 @@ export const notificationDelivery = sqliteTable(
     },
     (t) => [uniqueIndex('notification_delivery_unique_attempt').on(t.notificationId, t.attempt)],
 )
+
+export const follow = sqliteTable(
+    'follow',
+    {
+        followerId: text('follower_id')
+            .notNull()
+            .references(() => user.id, { onDelete: 'cascade' }),
+        followingId: text('following_id')
+            .notNull()
+            .references(() => user.id, { onDelete: 'cascade' }),
+        createdAt: integer('created_at', { mode: 'timestamp_ms' })
+            .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+            .notNull(),
+    },
+    (t) => [uniqueIndex('follow_unique').on(t.followerId, t.followingId)],
+)

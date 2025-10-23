@@ -1,7 +1,36 @@
-import { UserRepository } from '@/repository'
+import { UserRepository, FollowRepository } from '@/repository'
 
 export const UserService = (db: D1Database) => {
     const userRepo = UserRepository(db)
+    const followRepo = FollowRepository(db)
+
+    const getUserProfile = async (userId: string, currentUserId?: string) => {
+        const user = await userRepo.getUserById(userId)
+
+        if (!user) {
+            return null
+        }
+
+        const followersCount = await followRepo.countFollowers(userId)
+        const followingCount = await followRepo.countFollowing(userId)
+
+        let isFollowing = false
+        let isFollowedBy = false
+
+        if (currentUserId && currentUserId !== userId) {
+            const status = await followRepo.checkFollowStatus(currentUserId, userId)
+            isFollowing = status.isFollowing
+            isFollowedBy = status.isFollowedBy
+        }
+
+        return {
+            ...user,
+            followersCount,
+            followingCount,
+            isFollowing,
+            isFollowedBy,
+        }
+    }
 
     const updateUserName = async (userId: string, name: string) => {
         return await userRepo.updateUser(userId, { name, updatedAt: new Date() })
@@ -28,6 +57,7 @@ export const UserService = (db: D1Database) => {
     }
 
     return {
+        getUserProfile,
         updateUserName,
         updateUserImage,
         updateUserProfile,

@@ -1,4 +1,4 @@
-import { MessageCircle, Repeat2, Share } from 'lucide-react'
+import { MessageCircle, Repeat2 } from 'lucide-react'
 import type { MessageAction } from '@/types/message-action'
 
 export const MESSAGE_ACTIONS: MessageAction[] = [
@@ -13,11 +13,5 @@ export const MESSAGE_ACTIONS: MessageAction[] = [
         label: '리트윗',
         icon: Repeat2,
         hoverColor: 'hover:text-green-600 hover:bg-green-600/10',
-    },
-    {
-        type: 'share',
-        label: '공유',
-        icon: Share,
-        hoverColor: 'hover:text-blue-600 hover:bg-blue-600/10',
     },
 ]
