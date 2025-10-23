@@ -9,7 +9,16 @@ export const Layout = ({ children, page }: { children: React.ReactNode; page?: s
             <head>
                 <meta charSet='utf-8' />
                 <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+                <title>B-Log</title>
+                <meta name='theme-color' content='#000000' />
                 <link rel='icon' type='image/x-icon' href='https://blog.gumyo.net/favicon.ico' />
+                <link rel='apple-touch-icon' href='https://blog.gumyo.net/favicon.ico' />
+                <meta property='og:type' content='website' />
+                <meta property='og:title' content='B-Log' />
+                <meta property='og:url' content='https://log.gumyo.net' />
+                <meta property='og:image' content='https://blog.gumyo.net/favicon.ico' />
+                <meta name='twitter:card' content='summary' />
+                <meta name='twitter:title' content='B-Log' />
                 <Link href='/components/global.css' rel='stylesheet' />
                 {page && <script dangerouslySetInnerHTML={{ __html: `window.__PAGE__="${page}"` }} />}
                 <Script src='/components/layout/client.tsx' />
