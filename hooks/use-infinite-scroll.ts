@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react'
 
-export const useInfiniteScroll = (onLoadMore: () => void, hasMore: boolean, loading: boolean) => {
+export const useInfiniteScroll = (
+    onLoadMore: () => void,
+    hasMore: boolean,
+    loading: boolean,
+    currentPage: number,
+) => {
     const observerTarget = useRef<HTMLDivElement>(null)
     const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -11,9 +16,14 @@ export const useInfiniteScroll = (onLoadMore: () => void, hasMore: boolean, load
                     if (timeoutRef.current) {
                         clearTimeout(timeoutRef.current)
                     }
-                    timeoutRef.current = setTimeout(() => {
+
+                    if (currentPage === 1) {
                         onLoadMore()
-                    }, 300)
+                    } else {
+                        timeoutRef.current = setTimeout(() => {
+                            onLoadMore()
+                        }, 300)
+                    }
                 }
             },
             { threshold: 0.1 },
@@ -29,7 +39,7 @@ export const useInfiniteScroll = (onLoadMore: () => void, hasMore: boolean, load
                 clearTimeout(timeoutRef.current)
             }
         }
-    }, [hasMore, loading, onLoadMore])
+    }, [hasMore, loading, onLoadMore, currentPage])
 
     return observerTarget
 }

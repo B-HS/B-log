@@ -107,7 +107,7 @@ export const Home = () => {
         }
     }
 
-    const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading)
+    const observerTarget = useInfiniteScroll(() => setPage((prev) => prev + 1), hasMore, loading, page)
 
     useEffect(() => {
         if (isPending) return
