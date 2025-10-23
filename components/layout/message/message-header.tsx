@@ -32,7 +32,7 @@ export const MessageHeader: FC<MessageHeaderProps> = ({ user, createdAt, timeAgo
         <div className='flex gap-3'>
             <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen} delayDuration={500}>
                 <TooltipTrigger asChild>
-                    <div className='flex gap-3 items-start cursor-pointer'>
+                    <div className='flex gap-3 items-center cursor-pointer w-full'>
                         <div className='flex-shrink-0'>
                             <Avatar className='h-10 w-10'>
                                 <AvatarImage src={user.image || undefined} alt={user.name} />
@@ -40,7 +40,7 @@ export const MessageHeader: FC<MessageHeaderProps> = ({ user, createdAt, timeAgo
                             </Avatar>
                         </div>
                         <div className='flex-1 min-w-0'>
-                            <div className='flex items-start justify-between gap-2'>
+                            <div className='flex items-center justify-between gap-2'>
                                 <div className='flex items-center gap-2 min-w-0'>
                                     <a
                                         href={`/user?id=${user.id}`}
