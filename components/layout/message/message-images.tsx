@@ -1,8 +1,8 @@
-import { DEFAULT_IMAGE_URL } from '@/constants'
 import { cn } from '@/components/lib/utils'
-import { getImageUrl } from '@/utils'
-import type { FC } from 'react'
+import { DEFAULT_IMAGE_URL } from '@/constants'
 import type { ImageAssetWithUrl } from '@/types'
+import { getImageUrl, getOriginalImageUrl } from '@/utils'
+import type { FC } from 'react'
 
 interface MessageImagesProps {
     images: ImageAssetWithUrl[]
@@ -19,7 +19,7 @@ export const MessageImages: FC<MessageImagesProps> = ({ images, userName }) => {
                 images.length === 1 ? 'grid-cols-1' : images.length === 2 ? 'grid-cols-2' : images.length === 3 ? 'grid-cols-2' : 'grid-cols-2',
             )}>
             {images.map((image, index) => {
-                const originalImageUrl = getImageUrl(image.id, 'original')
+                const originalImageUrl = getOriginalImageUrl(image.id, image.mimeType)
 
                 return (
                     <a
