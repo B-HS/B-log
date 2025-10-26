@@ -1,8 +1,16 @@
 import { Hono } from 'hono'
 import { createAuthRouter, createMessageRouter, createR2Router, createUserRouter, createFollowRouter } from './routes'
 import { createPageRouter } from './routes/page'
+import { cors } from 'hono/cors'
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()
+
+app.use(
+    '*',
+    cors({
+        origin: ['gumyo.net', 'localhost'],
+    }),
+)
 
 const authRouter = createAuthRouter()
 const r2Router = createR2Router()
